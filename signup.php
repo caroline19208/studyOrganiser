@@ -5,7 +5,7 @@ include_once("connection.php");
 
 try {
     // Sanitize the input and hash the password
-    $username = htmlspecialchars($_POST["username"]);
+    array_map(“htmlspecialchars”, $_POST);
     $password = password_hash($_POST["passwd"], PASSWORD_DEFAULT);
 
     // Prepare the INSERT statement
