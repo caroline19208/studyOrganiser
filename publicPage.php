@@ -6,8 +6,8 @@
     
 </head>
 <body>
-<form action="login.php">
-  Username <input type="text" name="forename"><br>
+<form action="login.php" method = "POST">
+  Username <input type="text" name="username"><br>
   Password <input type="password" name="passwd"><br>
   <br>
 
