@@ -6,6 +6,15 @@
     
 </head>
 <body>
+<?php
+session_Start(); 
+// Check if there is a success message to display
+if (isset($_SESSION['message'])) {
+  echo "<p>" . $_SESSION['message'] . "</p>";
+  // Unset the message after displaying it
+  unset($_SESSION['message']);
+}
+?>
 <form action="signup.php" method = "POST">
   Username <input type="text" name="username"><br>
   Password <input type="password" name="passwd"><br>
