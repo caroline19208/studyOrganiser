@@ -4,30 +4,35 @@ session_start();  // Start session
 include_once("connection.php");
 
 try {
-    // Sanitize all inputs from the POST array
-    $_POST = array_map("htmlspecialchars", $_POST);
+    // Check if form data exists
+    if (isset($_POST['username']) && isset($_POST['passwd'])) {
 
-    // Prepare the SQL statement to find the user by username
-    $stmt = $conn->prepare("SELECT * FROM student WHERE username = :username");
-    $stmt->bindParam(':username', $_POST['username']);
-    $stmt->execute();
+        // Sanitize all inputs from the POST array
+        $_POST = array_map("htmlspecialchars", $_POST);
 
-    // Fetch the user data
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Prepare the SQL statement to find the user by username
+        $stmt = $conn->prepare("SELECT * FROM student WHERE username = :username");
+        $stmt->bindParam(':username', $_POST['username']);
+        $stmt->execute();
 
-    if ($row) { 
-        if (password_verify($_POST['passwd'], $row['password'])) {
-            header('Location: schedulePage.php');
-            exit();
+        // Fetch the user data
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) { 
+            if (password_verify($_POST['passwd'], $row['password'])) {
+                header('Location: schedulePage.php');
+                exit();
+            } else {
+                $_SESSION['message'] = 'Invalid credentials. Please try again.';
+                header('Location: publicPage.php');
+                exit();
+            }
         } else {
-            $_SESSION['message'] = 'Invalid credentials. Please try again.';
-            $_SESSION['message'] = 'Entered Password: ' . $_POST['passwd'] . '<br>';
-            $_SESSION['message'] .= 'Stored hashed password: ' . $row['password'];
+            $_SESSION['message'] = 'User not found. Please try again.';
             header('Location: publicPage.php');
             exit();
         }
     } else {
-        $_SESSION['message'] = 'User not found. Please try again.';
         header('Location: publicPage.php');
         exit();
     }
