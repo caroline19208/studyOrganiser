@@ -6,8 +6,7 @@
   
 </head>
 <body>
-<p> Hello </p>
-
+<script src="date.js""></script>
 
 </body>
 </html>
