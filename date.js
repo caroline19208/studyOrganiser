@@ -3,13 +3,13 @@ const today = new Date();
 
 // Format the date into Day of the week, Day, Month (e.g., Thursday, 11th January)
 const options = { weekday: 'long', day: 'numeric', month: 'long' };
-const formattedDate = today.toLocaleDateString('en-UK', options);
+const formattedDate = today.toLocaleDateString('en-GB', options);
 
-// Creates a html <p> element but its not yet part of the HTML document visible on screen. 
+// Creates a html <p> element but its not yet part of the HTML document visible on screen. it's a JavaScript Object now. 
 const dateElement = document.createElement('p');
 
 // Set text inside <p> element;
-dateElement.textContent = '${formattedDate}';
+dateElement.textContent = `${formattedDate}`;
 
 // Add <p> element to the page
 document.body.appendChild(dateElement);

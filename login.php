@@ -20,6 +20,7 @@ try {
 
         if ($row) { 
             if (password_verify($_POST['passwd'], $row['password'])) {
+                $_SESSION['studentID'] = $row['studentID'];
                 header('Location: schedulePage.php');
                 exit();
             } else {
