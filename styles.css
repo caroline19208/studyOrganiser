@@ -22,24 +22,33 @@ button {
     align-items: center;
 }
 
-/* Modal Content (the white box) */
+/* Modal Content (the box) */
 .modal-content {
     background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 50%;
-    text-align: center;
+    padding: 15px;
+    width: 40%; /* Reduce the width */
+    max-width: 600px; /* Optional: cap the width */
+    text-align: left; /* Align text to left for a more natural look */
 }
 
 /* Close Button */
 .close {
     float: right;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
+    margin-left: 10px;
 }
 
 .close:hover {
-    color: red;
+    color: black;
     cursor: pointer;
+}
+
+.assignment-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
 }

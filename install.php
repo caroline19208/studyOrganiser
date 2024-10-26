@@ -114,10 +114,12 @@ try {
     CREATE TABLE ASSIGNMENT (
         assignmentID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         objectiveID INT(6) UNSIGNED,
+        studentID INT(6) UNSIGNED,
         reviewStatus ENUM('Not started', 'Confused', 'Developing', 'Confident', 'Exam-ready', 'Retired') NOT NULL DEFAULT 'Not started',
         overdue BOOLEAN DEFAULT FALSE,
         dueDate DATE NOT NULL,
         coinsEarned INT DEFAULT 0,
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID),
         FOREIGN KEY (objectiveID) REFERENCES LEARNING_OBJECTIVE(objectiveID)
     )");
     $stmt->execute();
