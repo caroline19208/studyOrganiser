@@ -31,6 +31,13 @@ try {
     header('Location: publicPage.php');
     exit(); // Always exit after redirect
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
+    // Check if the error is due to a duplicate entry for the username
+    if ($e->getCode() == 23000) {  // Error code 23000 is for unique constraint violation
+        $_SESSION['message'] = 'Username already taken. Please choose another one.';
+        header('Location: signup.php');  // Redirect back to signup page
+        exit();
+    } else {
+        echo "Error: " . $e->getMessage();
+    }
 }
 ?>

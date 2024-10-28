@@ -1,54 +1,65 @@
 <?php
+//to access session variables.
 session_start();
 include_once("connection.php");
-
-// Check if user is logged in
+include("navbar.php");
+//checks if studentID set in session
 if (!isset($_SESSION['studentID'])) {
-    header("Location: publicPage.php");
+    //redirect to public page if studentID not set
+    header("Location: publicPage.php"); 
     exit();
 }
 
+//stores logged-in user's ID for database queries.
 $studentID = $_SESSION['studentID'];
 
-// Handle form submission to add a new subject
+// Check if the form was submitted using the POST method
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $subjectName = htmlspecialchars($_POST['subjectName']);
+    $subjectName = htmlspecialchars($_POST['subjectName']); // Get and sanitize the subject name
 
-    // Insert subject into the database
+    // Prepare an SQL query to insert the new subject into the SUBJECT table
     $stmt = $conn->prepare("INSERT INTO SUBJECT (studentID, subjectName) VALUES (?, ?)");
-    $stmt->execute([$studentID, $subjectName]);
-    $message = "Subject added successfully!";
+    $stmt->execute([$studentID, $subjectName]); // Execute the query with the student's ID and subject name
+    
+    $message = "Subject added successfully!"; // Set a message to confirm addition
 }
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Subject</title>
+    <title>Add Subject</title> <!-- Page title -->
 </head>
 <body>
-<h2>Add a New Subject</h2>
+<h2>Add a New Subject</h2> <!-- Page heading -->
 
-<?php if (isset($message)) echo "<p>$message</p>"; ?>
+<?php if (isset($message)) echo "<p>$message</p>"; ?> <!-- Display success message if available -->
 
+<!-- Form for adding a new subject -->
 <form method="POST">
     <label for="subjectName">Subject Name:</label>
-    <input type="text" name="subjectName" required>
-    <button type="submit">Add Subject</button>
+    <input type="text" name="subjectName" required> <!-- Text input for subject name -->
+    <button type="submit">Add Subject</button> <!-- Submit button -->
 </form>
 
 <!-- Display list of subjects -->
 <h3>Your Subjects</h3>
 <ul>
 <?php
-// Fetch subjects for the logged-in user
+// Prepare and execute a query to fetch the subjects for the logged-in student
 $stmt = $conn->prepare("SELECT * FROM SUBJECT WHERE studentID = ?");
 $stmt->execute([$studentID]);
-$subjects = $stmt->fetchAll();
+if (!$stmt->execute()) {
+    echo "Error creating SUBJECT table: " . $conn->errorInfo()[2];
+}
+$subjects = $stmt->fetchAll(); // Fetch all subjects for this student
 
+// Loop through each subject and display it as a list item
 foreach ($subjects as $subject) {
     echo "<li>" . htmlspecialchars($subject['subjectName']) . "</li>";
 }
+
 ?>
 </ul>
 </body>

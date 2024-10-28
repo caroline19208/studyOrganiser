@@ -11,7 +11,7 @@ try {
     $stmt = $conn->prepare("
     CREATE TABLE STUDENT (
         studentID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(20) NOT NULL,
+        username VARCHAR(20) NOT NULL UNIQUE,
         password VARCHAR(70) NOT NULL,
         totalBalance INT DEFAULT 0,
         diamondBalance INT DEFAULT 0
@@ -23,7 +23,9 @@ try {
     $stmt = $conn->prepare("
     CREATE TABLE SUBJECT (
         subjectID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        subjectName VARCHAR(50) NOT NULL
+        studentID INT(6) UNSIGNED,
+        subjectName VARCHAR(50) NOT NULL,
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID)
     )");
     $stmt->execute();
     $stmt->closeCursor();
