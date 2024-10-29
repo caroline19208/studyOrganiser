@@ -2,8 +2,19 @@
 include_once("connection.php");
 
 try {
-    // Drop existing tables if they exist (one by one)
+    // Disable foreign key checks
+    $conn->exec("SET FOREIGN_KEY_CHECKS = 0;");
+
+    // Drop existing tables if they exist
     $stmt = $conn->prepare("DROP TABLE IF EXISTS STUDENT_DOES_PAST_PAPER, LINKS, ASSIGNMENT, LEARNING_OBJECTIVE, TOPIC, STUDENT_DOES_SUBJECT, STUDENT_HAS_REWARD, REWARDS, PAST_PAPER, SUBJECT, STUDENT");
+    $stmt->execute();
+    $stmt->closeCursor();
+
+    // Re-enable foreign key checks
+    $conn->exec("SET FOREIGN_KEY_CHECKS = 1;");
+
+    // Drop existing tables if they exist, starting from child tables to parent tables
+    $stmt = $conn->prepare("DROP TABLE IF EXISTS LINKS, ASSIGNMENT, LEARNING_OBJECTIVE, STUDENT_DOES_PAST_PAPER, TOPIC, STUDENT_DOES_SUBJECT, STUDENT_HAS_REWARD, REWARDS, PAST_PAPER, SUBJECT, STUDENT");
     $stmt->execute();
     $stmt->closeCursor();
 
@@ -25,7 +36,7 @@ try {
         subjectID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         studentID INT(6) UNSIGNED,
         subjectName VARCHAR(50) NOT NULL,
-        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID)
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -36,8 +47,8 @@ try {
         studentSubjectID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         studentID INT(6) UNSIGNED,
         subjectID INT(6) UNSIGNED,
-        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID),
-        FOREIGN KEY (subjectID) REFERENCES SUBJECT(subjectID)
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID) ON DELETE CASCADE,
+        FOREIGN KEY (subjectID) REFERENCES SUBJECT(subjectID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -59,8 +70,8 @@ try {
         studentID INT(6) UNSIGNED,
         rewardID INT(6) UNSIGNED,
         purchaseDate DATE NOT NULL,
-        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID),
-        FOREIGN KEY (rewardID) REFERENCES REWARDS(rewardID)
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID) ON DELETE CASCADE,
+        FOREIGN KEY (rewardID) REFERENCES REWARDS(rewardID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -79,8 +90,8 @@ try {
         studentPastPaperID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         studentID INT(6) UNSIGNED,
         pastPaperID INT(6) UNSIGNED,
-        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID),
-        FOREIGN KEY (pastPaperID) REFERENCES PAST_PAPER(pastPaperID)
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID) ON DELETE CASCADE,
+        FOREIGN KEY (pastPaperID) REFERENCES PAST_PAPER(pastPaperID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -93,7 +104,7 @@ try {
         studentID INT(6) UNSIGNED, 
         topicName VARCHAR(50) NOT NULL,
         topicOrder INT(3) NOT NULL,
-        FOREIGN KEY (subjectID) REFERENCES SUBJECT(subjectID)
+        FOREIGN KEY (subjectID) REFERENCES SUBJECT(subjectID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -108,8 +119,8 @@ try {
         notes TEXT,
         image BLOB,
         objectiveStatus VARCHAR(20) NOT NULL,
-        FOREIGN KEY (topicID) REFERENCES TOPIC(topicID),
-        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID)
+        FOREIGN KEY (topicID) REFERENCES TOPIC(topicID) ON DELETE CASCADE,
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -124,8 +135,8 @@ try {
         overdue BOOLEAN DEFAULT FALSE,
         dueDate DATE NOT NULL,
         coinsEarned INT DEFAULT 0,
-        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID),
-        FOREIGN KEY (objectiveID) REFERENCES LEARNING_OBJECTIVE(objectiveID)
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID) ON DELETE CASCADE,
+        FOREIGN KEY (objectiveID) REFERENCES LEARNING_OBJECTIVE(objectiveID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
@@ -138,7 +149,7 @@ try {
         linkURL VARCHAR(255) NOT NULL,
         linkDescription VARCHAR(255),
         linkType VARCHAR(20),
-        FOREIGN KEY (objectiveID) REFERENCES LEARNING_OBJECTIVE(objectiveID)
+        FOREIGN KEY (objectiveID) REFERENCES LEARNING_OBJECTIVE(objectiveID) ON DELETE CASCADE
     )");
     $stmt->execute();
     $stmt->closeCursor();
