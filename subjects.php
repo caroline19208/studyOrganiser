@@ -57,7 +57,8 @@ $subjects = $stmt->fetchAll(); // Fetch all subjects for this student
 
 // Loop through each subject and display it as a list item
 foreach ($subjects as $subject) {
-    echo "<li>" . htmlspecialchars($subject['subjectName']) . "</li>";
+    $subjectID = $subject['subjectID'];
+    echo "<li><a href='subjectPage.php?subjectID=$subjectID'>" . htmlspecialchars($subject['subjectName']) . "</a></li>";
 }
 
 ?>

@@ -90,6 +90,7 @@ try {
     CREATE TABLE TOPIC (
         topicID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         subjectID INT(6) UNSIGNED,
+        studentID INT(6) UNSIGNED, 
         topicName VARCHAR(50) NOT NULL,
         topicOrder INT(3) NOT NULL,
         FOREIGN KEY (subjectID) REFERENCES SUBJECT(subjectID)
