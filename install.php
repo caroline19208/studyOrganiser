@@ -102,12 +102,14 @@ try {
     $stmt = $conn->prepare("
     CREATE TABLE LEARNING_OBJECTIVE (
         objectiveID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        topicID INT(6) UNSIGNED,
+        topicID INT(6) UNSIGNED NOT NULL,
+        studentID INT(6) UNSIGNED NOT NULL,
         objectiveName VARCHAR(100) NOT NULL,
         notes TEXT,
         image BLOB,
-        objectiveStatus VARCHAR(10) NOT NULL,
-        FOREIGN KEY (topicID) REFERENCES TOPIC(topicID)
+        objectiveStatus VARCHAR(20) NOT NULL,
+        FOREIGN KEY (topicID) REFERENCES TOPIC(topicID),
+        FOREIGN KEY (studentID) REFERENCES STUDENT(studentID)
     )");
     $stmt->execute();
     $stmt->closeCursor();
