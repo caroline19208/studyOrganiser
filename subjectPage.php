@@ -67,7 +67,7 @@ $topics = $stmt->fetchAll();
 
 // Display each topic
 foreach ($topics as $topic) {
-    echo "<li><a href='topicPage.php?topicID=" . $topic['topicID'] . "'>" . htmlspecialchars($topic['topicName']) . "</a></li>";
+    echo "<li><a href='topicPage.php?topicID=" . $topic['topicID'] . "&subjectID=" . $subjectID . "'>" . htmlspecialchars($topic['topicName']) . "</a></li>";
 }
 ?>
 </ul>
