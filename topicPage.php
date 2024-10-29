@@ -32,6 +32,8 @@ if (!$topic) {
 </head>
 <body>
 
+<button onclick="window.history.back()">Back to Topics List</button> <!-- Back button -->
+
 <h2><?php echo htmlspecialchars($topic['topicName']); ?> - Learning Objectives</h2>
 <?php if (isset($message)) echo "<p>$message</p>"; ?>
 
