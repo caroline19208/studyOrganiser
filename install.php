@@ -131,6 +131,7 @@ try {
         assignmentID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         objectiveID INT(6) UNSIGNED,
         studentID INT(6) UNSIGNED,
+        details VARCHAR(255),
         reviewStatus ENUM('Not started', 'Confused', 'Developing', 'Confident', 'Exam-ready', 'Retired') NOT NULL DEFAULT 'Not started',
         overdue BOOLEAN DEFAULT FALSE,
         dueDate DATE NOT NULL,
