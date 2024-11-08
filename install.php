@@ -116,6 +116,7 @@ try {
         topicID INT(6) UNSIGNED NOT NULL,
         studentID INT(6) UNSIGNED NOT NULL,
         objectiveName VARCHAR(100) NOT NULL,
+        reviewStatus ENUM('Not started', 'Confused', 'Developing', 'Confident', 'Exam-ready', 'Retired') NOT NULL DEFAULT 'Not started',
         notes TEXT,
         image BLOB,
         objectiveStatus VARCHAR(20) NOT NULL,

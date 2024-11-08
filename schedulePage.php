@@ -1,46 +1,38 @@
 <?php
-// Start the PHP session to keep track of user information across pages
 session_start();
-
-// Include the database connection file
 include_once("connection.php");
-
-// Include the navigation bar for consistent UI across pages
 include_once("navbar.php");
 
-// Check if the user is logged in by seeing if their studentID is stored in the session
-// If studentID is not set, redirect them to the public page (login page)
 if (!isset($_SESSION['studentID'])) {
-    header("Location: publicPage.php"); 
-    exit(); // Stop further execution to ensure the redirect happens
+    header("Location: publicPage.php");
+    exit();
 }
 
-// Retrieve the logged-in user's studentID from the session
 $studentID = $_SESSION['studentID'];
 
-// Initialize empty arrays to hold assignments for each status
-// These arrays will later be filled with assignments from the database
-$confused = [];
-$developing = [];
-$proficient = [];
-$confident = [];
+// Fetch assignments based on review status with learning objective name
+$confusedAssignments = $conn->prepare("SELECT ASSIGNMENT.*, LEARNING_OBJECTIVE.objectiveName 
+                                       FROM ASSIGNMENT 
+                                       JOIN LEARNING_OBJECTIVE ON ASSIGNMENT.objectiveID = LEARNING_OBJECTIVE.objectiveID 
+                                       WHERE ASSIGNMENT.studentID = ? AND ASSIGNMENT.reviewStatus = 'Confused'");
+$developingAssignments = $conn->prepare("SELECT ASSIGNMENT.*, LEARNING_OBJECTIVE.objectiveName 
+                                         FROM ASSIGNMENT 
+                                         JOIN LEARNING_OBJECTIVE ON ASSIGNMENT.objectiveID = LEARNING_OBJECTIVE.objectiveID 
+                                         WHERE ASSIGNMENT.studentID = ? AND ASSIGNMENT.reviewStatus = 'Developing'");
+$proficientAssignments = $conn->prepare("SELECT ASSIGNMENT.*, LEARNING_OBJECTIVE.objectiveName 
+                                         FROM ASSIGNMENT 
+                                         JOIN LEARNING_OBJECTIVE ON ASSIGNMENT.objectiveID = LEARNING_OBJECTIVE.objectiveID 
+                                         WHERE ASSIGNMENT.studentID = ? AND ASSIGNMENT.reviewStatus = 'Proficient'");
+$confidentAssignments = $conn->prepare("SELECT ASSIGNMENT.*, LEARNING_OBJECTIVE.objectiveName 
+                                        FROM ASSIGNMENT 
+                                        JOIN LEARNING_OBJECTIVE ON ASSIGNMENT.objectiveID = LEARNING_OBJECTIVE.objectiveID 
+                                        WHERE ASSIGNMENT.studentID = ? AND ASSIGNMENT.reviewStatus = 'Confident'");
 
-// Prepare SQL queries to fetch assignments for this student based on their status
-// Each query is for a specific review status: Confused, Developing, Proficient, Confident
-$confusedAssignments = $conn->prepare("SELECT * FROM ASSIGNMENT WHERE studentID = ? AND reviewStatus = 'Confused'");
-$developingAssignments = $conn->prepare("SELECT * FROM ASSIGNMENT WHERE studentID = ? AND reviewStatus = 'Developing'");
-$proficientAssignments = $conn->prepare("SELECT * FROM ASSIGNMENT WHERE studentID = ? AND reviewStatus = 'Proficient'");
-$confidentAssignments = $conn->prepare("SELECT * FROM ASSIGNMENT WHERE studentID = ? AND reviewStatus = 'Confident'");
-
-// Execute each query and pass in the student's ID as a parameter
-// This fetches assignments for this specific student only
 $confusedAssignments->execute([$studentID]);
 $developingAssignments->execute([$studentID]);
 $proficientAssignments->execute([$studentID]);
 $confidentAssignments->execute([$studentID]);
 
-// Retrieve all results from each query and store them in the respective arrays
-// Each array will contain all assignments with a particular status for this student
 $confused = $confusedAssignments->fetchAll();
 $developing = $developingAssignments->fetchAll();
 $proficient = $proficientAssignments->fetchAll();
@@ -48,57 +40,64 @@ $confident = $confidentAssignments->fetchAll();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Schedule page</title>
-   <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS for styling -->
+   <title>Schedule Page</title>
+   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<script src="date.js""></script> <!-- Link to external JavaScript file for date handling -->
 
-<!-- Button to trigger popups for different assignment categories -->
+<h1>Your Schedule</h1>
+<script src="date.js"></script>
+
+<!-- Buttons to open each modal with updated labels -->
 <button onclick="openModal('modal1')">Everyday</button>
 <button onclick="openModal('modal2')">Tuesday and Thursday</button>
 <button onclick="openModal('modal3')">Sunday</button>
-<button onclick="openModal('modal4')">Last day of the month</button>
+<button onclick="openModal('modal4')">End of the Month</button>
 
-<!-- Modal for 'Everyday' (Confused Status) -->
+<!-- Modal for Everyday assignments -->
 <div id="modal1" class="modal">
    <div class="modal-content">
-      <span class="close" onclick="closeModal('modal1')">&times;</span> <!-- Button to close the modal -->
+      <span class="close" onclick="closeModal('modal1')">&times;</span>
       <h2>Everyday</h2>
-      <!-- Check if the $confused array has assignments -->
       <?php if (!empty($confused)): ?>
-         <!-- Loop through each assignment in the $confused array and display details -->
          <?php foreach ($confused as $assignment): ?>
-             <div>
-                 <h3><?php echo $assignment['assignmentName']; ?></h3>
-                 <p>Due: <?php echo $assignment['dueDate']; ?></p>
-                 <p>Coins Earned: <?php echo $assignment['coinsEarned']; ?></p>
-                 <p>Status: <?php echo $assignment['reviewStatus']; ?></p>
+             <div class="assignment-box">
+                 <h3><?php echo htmlspecialchars($assignment['objectiveName']); ?></h3>
+                 <p><?php echo htmlspecialchars($assignment['details']); ?></p>
+                 <p>Value: <?php echo htmlspecialchars($assignment['coinsEarned']); ?></p>
+                 <form method="POST" action="objectivePage.php?objectiveID=<?php echo $assignment['objectiveID']; ?>">
+                    <input type="hidden" name="assignmentID" value="<?php echo $assignment['assignmentID']; ?>">
+                    <button type="submit" name="deleteAssignment" class="delete-btn">Delete</button>
+                 </form>
+                 <button class="complete-btn">Complete</button>
              </div>
          <?php endforeach; ?>
       <?php else: ?>
-         <!-- Message to display if there are no assignments for this status -->
          <p>No assignments scheduled.</p>
       <?php endif; ?>
    </div>
 </div>
 
-<!-- Modal for 'Tuesday and Thursday' (Developing Status) -->
+<!-- Modal for Tuesday and Thursday assignments -->
 <div id="modal2" class="modal">
    <div class="modal-content">
       <span class="close" onclick="closeModal('modal2')">&times;</span>
       <h2>Tuesday and Thursday</h2>
       <?php if (!empty($developing)): ?>
          <?php foreach ($developing as $assignment): ?>
-             <div>
-                 <h3><?php echo $assignment['assignmentName']; ?></h3>
-                 <p>Due: <?php echo $assignment['dueDate']; ?></p>
-                 <p>Coins Earned: <?php echo $assignment['coinsEarned']; ?></p>
-                 <p>Status: <?php echo $assignment['reviewStatus']; ?></p>
+             <div class="assignment-box">
+                 <h3><?php echo htmlspecialchars($assignment['objectiveName']); ?></h3>
+                 <p><?php echo htmlspecialchars($assignment['details']); ?></p>
+                 <p>Value: <?php echo htmlspecialchars($assignment['coinsEarned']); ?></p>
+                 <form method="POST" action="objectivePage.php?objectiveID=<?php echo $assignment['objectiveID']; ?>">
+                    <input type="hidden" name="assignmentID" value="<?php echo $assignment['assignmentID']; ?>">
+                    <button type="submit" name="deleteAssignment" class="delete-btn">Delete</button>
+                 </form>
+                 <button class="complete-btn">Complete</button>
              </div>
          <?php endforeach; ?>
       <?php else: ?>
@@ -107,18 +106,22 @@ $confident = $confidentAssignments->fetchAll();
    </div>
 </div>
 
-<!-- Modal for 'Sunday' (Proficient Status) -->
+<!-- Modal for Sunday assignments -->
 <div id="modal3" class="modal">
    <div class="modal-content">
       <span class="close" onclick="closeModal('modal3')">&times;</span>
       <h2>Sunday</h2>
       <?php if (!empty($proficient)): ?>
          <?php foreach ($proficient as $assignment): ?>
-             <div>
-                 <h3><?php echo $assignment['assignmentName']; ?></h3>
-                 <p>Due: <?php echo $assignment['dueDate']; ?></p>
-                 <p>Coins Earned: <?php echo $assignment['coinsEarned']; ?></p>
-                 <p>Status: <?php echo $assignment['reviewStatus']; ?></p>
+             <div class="assignment-box">
+                 <h3><?php echo htmlspecialchars($assignment['objectiveName']); ?></h3>
+                 <p><?php echo htmlspecialchars($assignment['details']); ?></p>
+                 <p>Value: <?php echo htmlspecialchars($assignment['coinsEarned']); ?></p>
+                 <form method="POST" action="objectivePage.php?objectiveID=<?php echo $assignment['objectiveID']; ?>">
+                    <input type="hidden" name="assignmentID" value="<?php echo $assignment['assignmentID']; ?>">
+                    <button type="submit" name="deleteAssignment" class="delete-btn">Delete</button>
+                 </form>
+                 <button class="complete-btn">Complete</button>
              </div>
          <?php endforeach; ?>
       <?php else: ?>
@@ -127,18 +130,22 @@ $confident = $confidentAssignments->fetchAll();
    </div>
 </div>
 
-<!-- Modal for 'Last day of the month' (Confident Status) -->
+<!-- Modal for End of the Month assignments -->
 <div id="modal4" class="modal">
    <div class="modal-content">
       <span class="close" onclick="closeModal('modal4')">&times;</span>
-      <h2>Last day of the month</h2>
+      <h2>End of the Month</h2>
       <?php if (!empty($confident)): ?>
          <?php foreach ($confident as $assignment): ?>
-             <div>
-                 <h3><?php echo $assignment['assignmentName']; ?></h3>
-                 <p>Due: <?php echo $assignment['dueDate']; ?></p>
-                 <p>Coins Earned: <?php echo $assignment['coinsEarned']; ?></p>
-                 <p>Status: <?php echo $assignment['reviewStatus']; ?></p>
+             <div class="assignment-box">
+                 <h3><?php echo htmlspecialchars($assignment['objectiveName']); ?></h3>
+                 <p><?php echo htmlspecialchars($assignment['details']); ?></p>
+                 <p>Value: <?php echo htmlspecialchars($assignment['coinsEarned']); ?></p>
+                 <form method="POST" action="objectivePage.php?objectiveID=<?php echo $assignment['objectiveID']; ?>">
+                    <input type="hidden" name="assignmentID" value="<?php echo $assignment['assignmentID']; ?>">
+                    <button type="submit" name="deleteAssignment" class="delete-btn">Delete</button>
+                 </form>
+                 <button class="complete-btn">Complete</button>
              </div>
          <?php endforeach; ?>
       <?php else: ?>
@@ -147,8 +154,57 @@ $confident = $confidentAssignments->fetchAll();
    </div>
 </div>
 
-<script src="script.js"></script> <!-- Link to external JavaScript for modal functionality -->
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
+</script>
+
+<style>
+    .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+    .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
+    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+
+    .assignment-box {
+        background-color: #e0f0ff;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .assignment-box h3 {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .complete-btn, .delete-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+    }
+</style>
 
 </body>
 </html>
-_
